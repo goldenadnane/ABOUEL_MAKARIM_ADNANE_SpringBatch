@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:batch="http://www.springframework.org/schema/batch"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/jdbc
+                           http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+                           http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/batch
+                           http://www.springframework.org/schema/batch/spring-batch.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <import resource="datasource.xml" />
+
+    <bean id="jobRegistry" class="org.springframework.batch.core.configuration.support.MapJobRegistry"/>
+
+    <bean id="jobLauncher" class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+        <property name="jobRepository" ref="jobRepository"/>
+    </bean>
+
+    <bean id="studentItemReader" class="com.example.technomakers.springbatch.exercice.config.StudentItemReader" />
+    <bean id="studentItemProcessor" class="com.example.technomakers.springbatch.exercice.config.StudentItemProcessor" />
+    <bean id="studentItemWriter" class="com.example.technomakers.springbatch.exercice.config.StudentItemWriter" />
+
+    <bean id="carItemReader" class="com.example.technomakers.springbatch.exercice.config.CarItemReader" />
+    <bean id="carItemProcessor" class="com.example.technomakers.springbatch.exercice.config.CarItemProcessor" />
+    <bean id="carItemWriter" class="com.example.technomakers.springbatch.exercice.config.CarItemWriter" />
+
+    <bean id="stepListener" class="com.example.technomakers.springbatch.exercice.listener.StepListener" />
+    <bean id="jobListener" class="com.example.technomakers.springbatch.exercice.listener.JobListener" />
+
+    <batch:job id="studentJob" job-repository="jobRepository">
+        <batch:step id="studentStep">
+            <batch:tasklet>
+                <batch:chunk reader="studentItemReader" processor="studentItemProcessor" writer="studentItemWriter" commit-interval="10" />
+            </batch:tasklet>
+            <batch:listeners>
+                <batch:listener ref="stepListener" />
+            </batch:listeners>
+        </batch:step>
+        <batch:listeners>
+            <batch:listener ref="jobListener" />
+        </batch:listeners>
+    </batch:job>
+
+    <batch:job id="carJob" job-repository="jobRepository">
+        <batch:step id="carStep">
+            <batch:tasklet>
+                <batch:chunk reader="carItemReader" processor="carItemProcessor" writer="carItemWriter" commit-interval="10" />
+            </batch:tasklet>
+            <batch:listeners>
+                <batch:listener ref="stepListener" />
+            </batch:listeners>
+        </batch:step>
+        <batch:listeners>
+            <batch:listener ref="jobListener" />
+        </batch:listeners>
+    </batch:job>
+
+</beans>
